@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using UnityEngine;
 
@@ -18,6 +19,8 @@ namespace ClassicSchoolhouse
         private int closedElevators = 0;
         private EnvironmentController ec;
         private Color[,] originalColors;
+        private System.Random rng;
+
         public void Initialize(EnvironmentController ec)
         {
             this.ec = ec;
@@ -34,9 +37,12 @@ namespace ClassicSchoolhouse
 
             originalColors = new Color[ec.levelSize.x, ec.levelSize.z];
 
+            rng = new System.Random(Singleton<CoreGameManager>.Instance.Seed());
+
+            FindHallwayToReplaceLight(rng);
+
             //ec.lights.ForEach(e => e.lightStrength = 1);
-            var randomLight = ec.lights[UnityEngine.Random.Range(0, ec.lights.Count())];
-            ReplaceLightByBuzzing(randomLight);
+            
             // is this the backrooms
             // ec.lights.ForEach(e => ReplaceLightByBuzzing(e));
         }
@@ -66,6 +72,13 @@ namespace ClassicSchoolhouse
                 Singleton<MusicManager>.Instance.MidiPlayer.MPTK_ChannelEnableSet(i, true);
             }
         }
+
+        public void FindHallwayToReplaceLight(System.Random rng)
+        {
+            var hallwaysLights = (from x in ec.lights where x.room.type == RoomType.Hall select x).ToArray();
+            var randomLight =  hallwaysLights[rng.Next(0, hallwaysLights.Count())];
+            ReplaceLightByBuzzing(randomLight);
+        }
         public void ReplaceLightByBuzzing(Cell cell)
         {
             // Turn off nearby lights
@@ -76,6 +89,9 @@ namespace ClassicSchoolhouse
                     ec.SetLight(false, nearby);
                     nearby.lightOn = false;
                     nearby.hasLight = false;
+                } else
+                {
+                    nearby.lightStrength /= 2;
                 }
             }
             ec.SetLight(false, cell);
@@ -85,6 +101,8 @@ namespace ClassicSchoolhouse
             // Add buzzing
             var audman = cell.tile.gameObject.AddComponent<PropagatedAudioManager>();
             audman.QueueAudio(ClassicSchoolhouse.assetManager.Get<SoundObject>("Buzz"));
+            audman.volumeModifier *= 2;
+            audman.maxDistance /= 2;
             audman.SetLoop(true);
         }
 

@@ -40,7 +40,7 @@ namespace ClassicSchoolhouse
             ClassicSchoolhouseMenu.Setup();
 
 #if DEBUG
-            //FastPlayer.Play(this);
+            FastPlayer.Play(this);
 #endif
         }
 

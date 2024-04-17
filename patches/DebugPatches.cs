@@ -39,7 +39,7 @@ namespace ClassicSchoolhouse.patches
             Singleton<MusicManager>.Instance.StopMidi();
             Singleton<BaseGameManager>.Instance.BeginSpoopMode();
             __instance.ec.SpawnNPCs();
-            __instance.ec.GetBaldi().Despawn();
+            //__instance.ec.GetBaldi().Despawn();
             __instance.activated = true;
             __instance.ec.StartEventTimers();
             __instance.sprite.enabled = false;
